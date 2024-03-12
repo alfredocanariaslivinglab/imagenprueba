@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import './style/prueba.css'
 
 function App() {
   const [file, setFile] = useState(null);
@@ -25,6 +26,7 @@ function App() {
       setMessage('Error al redimensionar y subir la imagen');
     }
   };
+
   const resizeImage = async (file) => {
     return new Promise((resolve) => {
       const reader = new FileReader();
@@ -38,7 +40,7 @@ function App() {
           const maxHeight = 2000;
           let width = img.width;
           let height = img.height;
-  
+
           if (width > height) {
             if (width > maxWidth) {
               height *= maxWidth / width;
@@ -50,38 +52,43 @@ function App() {
               height = maxHeight;
             }
           }
-  
+
           canvas.width = width;
           canvas.height = height;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
           canvas.toBlob((blob) => {
-            resolve(new File([blob], file.name, { type: 'image/jpeg' }), 'image/jpeg', 0.95); // Ajusta el valor de calidad aquí
-          });
+            resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+          }, 'image/jpeg', 0.95);
         };
       };
     });
   };
-  
+
   const uploadImage = async (resizedFile) => {
     const formData = new FormData();
     formData.append('image', resizedFile);
 
-    const response = await axios.post('http://localhost:3001/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
+    try {
+      const response = await axios.post('http://localhost:3001/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
 
-    if (response.status === 200) {
-      setMessage('Imagen subida correctamente');
-    } else {
+      if (response.status === 200) {
+        setMessage('Imagen subida correctamente');
+      } else {
+        setMessage('Error al subir la imagen');
+      }
+    } catch (error) {
+      console.error('Error al subir la imagen:', error);
       setMessage('Error al subir la imagen');
     }
   };
 
   return (
-    <div className="App">
+    <div className="app-container">
       <h1>Subir Imagen de prueba</h1>
       <form onSubmit={handleSubmit}>
         <input type="file" onChange={handleFileChange} />
