@@ -16,7 +16,11 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Ruta para manejar la carga de archivos
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  next();
+});
+
 app.post('/upload', upload.single('image'), (req, res) => {
   res.send('Imagen subida correctamente');
 });
